@@ -4,7 +4,7 @@
 >
 > 纯前端、离线可用，双击 `index.html` 就能打开，不需要装任何东西。
 
-**在线试用**：<https://ryanhu2026.github.io/pcb-quality-lab/>
+**在线试用**：开启 GitHub Pages 后访问 <https://ryanhu2026.github.io/pcb-quality-lab-3d/>（仓库 Settings → Pages → Branch 选 `main` / root）
 
 ---
 
