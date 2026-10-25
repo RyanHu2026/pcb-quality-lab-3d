@@ -81,6 +81,7 @@ if (mount("defects", mountDefects)) {
   // 切图谱
   root.querySelectorAll("[data-tab]")[2].click();
   console.log("  catalog cards:", root.querySelectorAll(".dcard").length);
+  console.log("  upload buttons:", root.querySelectorAll(".photo-add").length);
   root.querySelector(".dcard")?.click();
   console.log("  modal open:", !!root.querySelector(".modal"));
   root.querySelector("#close")?.click();

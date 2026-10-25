@@ -490,11 +490,56 @@ export function mountDefects(root, ctx) {
   }
 
   /* ---------------- 缺陷图谱 ---------------- */
+  const PHOTO_KEY = "pcb-lab-photos-v1";
+
+  function loadPhotos() {
+    try {
+      return JSON.parse(localStorage.getItem(PHOTO_KEY)) || {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function storePhoto(id, dataUrl) {
+    const m = loadPhotos();
+    if (dataUrl) m[id] = dataUrl;
+    else delete m[id];
+    try {
+      localStorage.setItem(PHOTO_KEY, JSON.stringify(m));
+      return true;
+    } catch (e) {
+      alert("浏览器存储空间不够了，先删掉几张别的照片再试。");
+      return false;
+    }
+  }
+
+  /** 压缩成最长边 900px 的 JPEG，避免把 localStorage 撑爆 */
+  function shrinkImage(file, cb) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const max = 900;
+        const k = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement("canvas");
+        c.width = Math.round(img.width * k);
+        c.height = Math.round(img.height * k);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        cb(c.toDataURL("image/jpeg", 0.78));
+      };
+      img.onerror = () => cb(null);
+      img.src = reader.result;
+    };
+    reader.onerror = () => cb(null);
+    reader.readAsDataURL(file);
+  }
+
   function renderCatalog() {
+    const photos = loadPhotos();
     body.innerHTML = `
       <div class="aoi-tip" style="margin-bottom:10px">
-        想换成真实不良照片：把图片命名成 <b>img/defects/&lt;id&gt;.jpg</b>（如 <b>open.jpg</b>）放在 HTML 同目录，
-        图谱和判定页会自动用照片替换示意图。
+        想换成真实不良照片：点卡片上的 <b>＋照片</b> 上传你自己拍的板子（只存在本机浏览器，不会上传到网上）；
+        或者把图片命名成 <b>img/defects/&lt;id&gt;.jpg</b> 放在 HTML 同目录。
       </div>
       <div class="catalog" id="catalog"></div>`;
     const grid = body.querySelector("#catalog");
@@ -505,6 +550,8 @@ export function mountDefects(root, ctx) {
       card.className = "dcard";
       card.innerHTML = `
         <div class="thumb"><canvas width="300" height="186"></canvas></div>
+        <button class="photo-add" data-add="${d.id}" title="上传真实照片">＋照片</button>
+        ${photos[d.id] ? `<button class="photo-del" data-del="${d.id}" title="删除照片">×</button>` : ""}
         <div class="body">
           <h4>${d.name}</h4>
           <div class="en">${d.en}</div>
@@ -512,15 +559,60 @@ export function mountDefects(root, ctx) {
         </div>`;
       frag.appendChild(card);
       const thumb = card.querySelector(".thumb");
-      const cv = thumb.querySelector("canvas");
-      renderCard(cv, d, 11 + i * 3);
-      tryPhoto(thumb, d, "photo");
+      if (photos[d.id]) {
+        const im = document.createElement("img");
+        im.className = "photo";
+        im.src = photos[d.id];
+        im.alt = d.name;
+        thumb.innerHTML = "";
+        thumb.appendChild(im);
+      } else {
+        const cv = thumb.querySelector("canvas");
+        renderCard(cv, d, 11 + i * 3);
+        tryPhoto(thumb, d);
+      }
+
       card.addEventListener("click", () => openModal(d));
+
+      card.querySelector("[data-add]").addEventListener("click", (e) => {
+        e.stopPropagation();
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+        input.onchange = () => {
+          const f = input.files && input.files[0];
+          if (!f) return;
+          shrinkImage(f, (url) => {
+            if (!url) return alert("这张图读不出来，换一张试试。");
+            if (storePhoto(d.id, url)) renderCatalog();
+          });
+        };
+        input.click();
+      });
+
+      const del = card.querySelector("[data-del]");
+      if (del) {
+        del.addEventListener("click", (e) => {
+          e.stopPropagation();
+          storePhoto(d.id, null);
+          renderCatalog();
+        });
+      }
     });
     grid.appendChild(frag);
   }
 
   function tryPhoto(container, d) {
+    const stored = loadPhotos()[d.id];
+    if (stored) {
+      container.innerHTML = "";
+      const im = document.createElement("img");
+      im.className = "photo";
+      im.src = stored;
+      im.alt = d.name;
+      container.appendChild(im);
+      return;
+    }
     const img = new Image();
     img.alt = d.name;
     img.onload = () => {

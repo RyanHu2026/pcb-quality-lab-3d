@@ -1,4 +1,4 @@
-import { STATIONS, PHASES } from "../data/line40.js";
+﻿import { STATIONS, PHASES } from "../data/line40.js";
 import { PCBFactory } from "../lib/factory3d.js";
 
 export function mountProcess(root, ctx) {
@@ -14,7 +14,7 @@ export function mountProcess(root, ctx) {
     <div class="tool-tabs" id="tabs">
       <button class="btn ${mode === "3d" ? "on" : ""}" data-mode="3d">3D 产线</button>
       <button class="btn" data-mode="list">流程清单</button>
-      <span style="margin-left:auto;font-size:11px;color:var(--dim-2);align-self:center">
+      <span class="tabs-note" style="margin-left:auto;font-size:11px;color:var(--dim-2);align-self:center">
         40 站 · 刚性多层板主线 · 点设备看工序
       </span>
     </div>
@@ -69,7 +69,8 @@ export function mountProcess(root, ctx) {
           },
         });
         factory.setSelected(selected);
-        const startPhase = new URLSearchParams(location.search).get("phase");
+        const qs = new URLSearchParams(location.search);
+        const startPhase = qs.get("phase");
         if (startPhase && PHASES[startPhase]) {
           factory.focusPhase(startPhase);
           const idx = STATIONS.findIndex((s) => s.phase === startPhase);
@@ -78,6 +79,12 @@ export function mountProcess(root, ctx) {
             factory.setSelected(idx);
           }
         }
+        // ?warp=90 → 产线直接快进 90 秒（用于验证 NG 分流与工件流动）
+        const warp = Number(qs.get("warp") || 0);
+        const ngRate = qs.get("ng");
+        if (ngRate !== null) factory.ngRate = Math.max(0, Math.min(1, Number(ngRate)));
+        if (warp > 0) factory.warp(Math.min(900, warp));
+        if (qs.get("look") === "ng") factory.lookIsolation();
       } catch (err) {
         console.error(err);
         host.innerHTML = `<div class="factory-fallback">
@@ -101,9 +108,11 @@ export function mountProcess(root, ctx) {
     if (!el || !factory) return;
     const s = factory.stats;
     const q = s.done + s.ng > 0 ? Math.round((s.done / (s.done + s.ng)) * 100) : 100;
+    const parked = factory.panels.filter((p) => p.state === "ng").length;
     el.innerHTML = `
       <span>已产出 <b>${s.done}</b></span>
       <span>NG <b class="ng">${s.ng}</b></span>
+      <span>隔离 <b class="ng">${parked}</b></span>
       <span>直通率 <b>${q}%</b></span>`;
     updateUtil();
   }
@@ -310,4 +319,8 @@ export function mountProcess(root, ctx) {
     disposeFactory();
   };
 }
+
+
+
+
 

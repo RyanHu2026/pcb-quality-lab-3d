@@ -688,6 +688,10 @@ export class PCBFactory {
     this.controls.update();
   }
 
+  lookIsolation() {
+    this.flyTo([23, 7, 14], [17.4, 1.2, 7]);
+  }
+
   overview() {
     this.flyTo([0, 23, 26], [0, 0.5, 0]);
   }
@@ -725,6 +729,34 @@ export class PCBFactory {
     this.time = (this.time || 0) + dt;
     const sim = this.paused ? 0 : dt * this.speed;
 
+    this.stepPanels(dt, sim);
+
+    // 机器动画 + 标签显隐
+    const t = this.time;
+    this.stations.forEach((s) => {
+      if (!s.anims) return;
+      for (const fn of s.anims) {
+        try {
+          fn(t, s.active);
+        } catch (e) {
+          /* 单台设备动画出错不影响整条线渲染 */
+        }
+      }
+    });
+
+    this.controls.update();
+    this.renderer.render(this.scene, this.camera);
+    this.labelRenderer.render(this.scene, this.camera);
+  }
+
+  /** 把时间快进若干秒（用于自动化验证，不渲染中间帧） */
+  warp(seconds) {
+    const steps = Math.min(20000, Math.round(seconds * 60));
+    for (let i = 0; i < steps; i++) this.stepPanels(1 / 60, 1 / 60);
+    return { done: this.stats.done, ng: this.stats.ng };
+  }
+
+  stepPanels(dt, sim) {
     // 机器状态复位
     this.stations.forEach((s) => (s.active = false));
 
@@ -737,7 +769,7 @@ export class PCBFactory {
         p.group.position.y += Math.sin(e * Math.PI) * 0.6;
         if (p.ngT >= 1) {
           p.ngWait = (p.ngWait || 0) + dt;
-          if (p.ngWait > 6) this.recyclePanel(p);
+          if (p.ngWait > 25) this.recyclePanel(p);
         }
         continue;
       }
@@ -761,7 +793,7 @@ export class PCBFactory {
           // QC 工位：AOI / 电测 / 终检
           const no = st ? st.no : 0;
           if (!p.defect && (no === 10 || no === 29 || no === 39 || no === 40)) {
-            if (Math.random() < 0.16) {
+            if (Math.random() < (this.ngRate ?? 0.07)) {
               p.defect = true;
               p.ngStation = no;
               this.stats.ng++;
@@ -790,32 +822,6 @@ export class PCBFactory {
     this.stations.forEach((s) => {
       s.util = s.busy ? Math.min(1, s.busy / Math.max(1, this.elapsed)) : 0;
     });
-
-    // 机器动画 + 标签显隐
-    const t = this.time;
-    this.stations.forEach((s) => {
-      if (!s.anims) return;
-      for (const fn of s.anims) {
-        try {
-          fn(t, s.active);
-        } catch (e) {
-          /* 单台设备动画出错不影响整条线渲染 */
-        }
-      }
-    });
-
-    this.controls.update();
-    this.renderer.render(this.scene, this.camera);
-    this.labelRenderer.render(this.scene, this.camera);
-
-    if (this.tween) {
-      this.tween.t += dt;
-      const k = Math.min(1, this.tween.t / this.tween.dur);
-      const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
-      this.camera.position.lerpVectors(this.tween.p0, this.tween.p1, e);
-      this.controls.target.lerpVectors(this.tween.t0, this.tween.t1, e);
-      if (k >= 1) this.tween = null;
-    }
   }
 
   dispose() {
@@ -839,6 +845,9 @@ function cylinderClone(src, x, y, z) {
   m.position.set(x, y, z);
   return m;
 }
+
+
+
 
 
 

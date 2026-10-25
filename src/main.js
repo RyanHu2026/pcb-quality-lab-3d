@@ -1,4 +1,4 @@
-﻿import "./style.css";
+import "./style.css";
 import { mountStructure } from "./views/structure.js";
 import { mountDefects } from "./views/defects.js";
 import { mountProcess } from "./views/process.js";
@@ -70,7 +70,7 @@ function saveProgress() {
 /* ---------------- shell ---------------- */
 const app = document.getElementById("app");
 app.innerHTML = `
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="brand">
       <div class="mark">
         <svg viewBox="0 0 24 24">
@@ -99,9 +99,15 @@ app.innerHTML = `
       <div class="hint">建议顺序：结构拆解 → 生产流程 → 缺陷判定 → 品质工具</div>
     </div>
   </aside>
+  <div class="scrim" id="scrim"></div>
   <main>
     <header class="topbar">
-      <div>
+      <button class="menu-btn" id="menu-btn" aria-label="打开菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="titles">
         <h1 id="page-title">学习地图</h1>
         <p id="page-sub"></p>
       </div>
@@ -114,6 +120,20 @@ app.innerHTML = `
   </main>
 `;
 
+const sidebarEl = document.getElementById("sidebar");
+const scrimEl = document.getElementById("scrim");
+const menuBtn = document.getElementById("menu-btn");
+
+function closeMenu() {
+  sidebarEl.classList.remove("open");
+  scrimEl.classList.remove("show");
+}
+menuBtn.addEventListener("click", () => {
+  const open = sidebarEl.classList.toggle("open");
+  scrimEl.classList.toggle("show", open);
+});
+scrimEl.addEventListener("click", closeMenu);
+
 const viewEl = document.getElementById("view");
 const navEl = document.getElementById("nav");
 const titleEl = document.getElementById("page-title");
@@ -124,6 +144,7 @@ navEl.addEventListener("click", (e) => {
   if (!a) return;
   e.preventDefault();
   location.hash = `#/${a.dataset.route}`;
+  closeMenu();
 });
 
 function updateSidebar() {
