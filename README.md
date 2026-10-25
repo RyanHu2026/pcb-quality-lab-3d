@@ -109,4 +109,6 @@ preview/               截图
 
 ## License
 
-暂未指定。如果要开源给他人使用，建议补一个 MIT 或 Apache-2.0。
+[MIT](LICENSE) © 2026 RyanHu2026
+
+可以自由使用、修改、商用，保留版权声明即可。
