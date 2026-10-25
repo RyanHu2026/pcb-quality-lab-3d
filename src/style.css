@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --bg: #090d12;
   --bg-2: #0b1017;
   --side: #0b1016;
@@ -149,7 +149,7 @@ main { flex: 1; min-width: 0; display: flex; flex-direction: column; height: 100
   color: var(--text);
   font-size: 12px;
   cursor: pointer;
-  transition: all 0.16s;
+  transition: background 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out;
 }
 .btn:hover { background: rgba(255, 255, 255, 0.07); }
 .btn.primary {
@@ -297,7 +297,7 @@ kbd {
   padding: 10px 12px;
   margin-bottom: 7px;
   cursor: pointer;
-  transition: all 0.16s;
+  transition: background 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out;
   color: var(--text);
 }
 .board-option:hover { border-color: var(--line-2); background: rgba(255, 255, 255, 0.045); }
@@ -426,7 +426,7 @@ input[type="range"]::-webkit-slider-thumb {
   background: rgba(255, 255, 255, 0.02);
   cursor: pointer;
   margin-right: 26px;
-  transition: all 0.16s;
+  transition: background 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out;
 }
 .pstep::after {
   content: "";
@@ -492,7 +492,7 @@ input[type="range"]::-webkit-slider-thumb {
   display: flex; align-items: center; gap: 10px; width: 100%;
   text-align: left; padding: 11px 13px; border-radius: 9px;
   border: 1px solid var(--line); background: rgba(255, 255, 255, 0.025);
-  color: var(--text); font-size: 12.5px; cursor: pointer; transition: all 0.15s;
+  color: var(--text); font-size: 12.5px; cursor: pointer; transition: background 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out;
 }
 .opt:hover { border-color: var(--line-2); background: rgba(255, 255, 255, 0.05); }
 .opt.correct { border-color: rgba(85, 214, 155, 0.6); background: rgba(85, 214, 155, 0.12); }
@@ -782,7 +782,7 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: 8px;
   cursor: pointer;
   backdrop-filter: blur(6px);
-  transition: all 0.15s;
+  transition: background 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out;
 }
 .phase-chip b { font-family: var(--mono); color: var(--cyan); margin-right: 5px; }
 .phase-chip:hover { color: var(--text); }
@@ -871,7 +871,7 @@ input[type="range"]::-webkit-slider-thumb {
   padding: 8px 10px;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out;
 }
 .station-chip i { font-family: var(--mono); font-style: normal; color: var(--dim-2); margin-right: 8px; font-size: 10px; }
 .station-chip:hover { border-color: var(--line-2); }
@@ -1059,4 +1059,124 @@ input[type="range"]::-webkit-slider-thumb {
   .modal-body { grid-template-columns: 1fr; padding: 14px; }
 }
 
+
+
+/* ============================================================
+   design pass v2 · 中性色 + 单一强调色（去 AI 味）
+   原则：一个强调色、纯色背景、1px 中性描边、无发光、无渐变
+   ============================================================ */
+:root {
+  --bg: #0a0a0b;
+  --bg-2: #0e0e10;
+  --side: #0c0c0d;
+  --panel: #141416;
+  --panel-2: #101012;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-2: rgba(255, 255, 255, 0.18);
+  --text: #f5f5f7;
+  --dim: #a1a1a6;
+  --dim-2: #6e6e73;
+  --cyan: #0a84ff;
+  --blue: #0a84ff;
+  --green: #30d158;
+  --amber: #ffd60a;
+  --red: #ff453a;
+  --violet: #bf5af2;
+  --r: 12px;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+
+body { background: var(--bg); }
+.sidebar { background: var(--side); border-right-color: var(--line); }
+.brand .mark { background: rgba(255, 255, 255, 0.04); border-color: var(--line-2); }
+.brand p { letter-spacing: 0.1em; color: var(--dim-2); }
+.bar i { background: var(--cyan); }
+
+.hero { background: var(--panel); border-radius: 16px; }
+.hero::after { display: none; }
+.hero .kicker {
+  font-family: var(--font);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--dim-2);
+  opacity: 1;
+}
+
+.card,
+.station-detail,
+.sd-card,
+.phase-block,
+.dcard,
+.detail-hero,
+.tool-card,
+.stat,
+.mod-card {
+  background: var(--panel);
+  border-color: var(--line);
+  border-radius: 12px;
+  box-shadow: none;
+}
+
+.btn {
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--line-2);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.btn:hover { background: rgba(255, 255, 255, 0.08); }
+.btn.primary {
+  background-image: none;
+  background: var(--cyan);
+  color: #fff;
+}
+.btn.primary:hover { background: #0077ed; filter: none; }
+.btn.on {
+  background: rgba(10, 132, 255, 0.12);
+  border-color: rgba(10, 132, 255, 0.45);
+  color: #7ab8ff;
+}
+
+.chip { background: rgba(255, 255, 255, 0.07); border-radius: 6px; }
+.chip.cyan { background: rgba(10, 132, 255, 0.14); color: #7ab8ff; }
+.chip.red { background: rgba(255, 69, 58, 0.14); color: #ff6961; }
+.chip.green { background: rgba(48, 209, 88, 0.14); color: #4ade80; }
+.chip.amber { background: rgba(255, 214, 10, 0.14); color: #ffd60a; }
+.chip.violet { background: rgba(191, 90, 242, 0.14); color: #c98cff; }
+
+.pill { background: rgba(255, 255, 255, 0.06); }
+.pill.green { background: rgba(48, 209, 88, 0.12); color: #4ade80; }
+.pill.red { background: rgba(255, 69, 58, 0.12); color: #ff6961; }
+
+.viewer-wrap,
+.factory-wrap,
+.line-wrap,
+.modal-thumb {
+  background: #0d0d0e;
+}
+.station-detail { background: var(--panel); }
+
+/* ---------- 规范落地：清掉剩余渐变 / 统一过渡 / 焦点环 ---------- */
+.mod { background: var(--panel); }
+.board-stage { background: #0d0d0e; }
+.station-detail { background: var(--panel); }
+.hero { border-radius: 16px; }
+.brand .mark { background: rgba(255, 255, 255, 0.04); }
+.bar i { background: var(--cyan); }
+
+.btn,
+.mod-card,
+.station-chip,
+.phase-chip,
+.dcard {
+  transition: background 0.15s ease-out, border-color 0.15s ease-out,
+    color 0.15s ease-out, transform 0.15s ease-out;
+}
+
+:where(button, a, [tabindex], input, select, textarea):focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
 
