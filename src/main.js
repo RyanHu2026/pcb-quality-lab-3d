@@ -112,6 +112,12 @@ app.innerHTML = `
         <p id="page-sub"></p>
       </div>
       <div class="right">
+        <button class="icon-btn" id="theme-btn" aria-label="切换深色/浅色">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/>
+          </svg>
+        </button>
         <span class="chip" id="quiz-chip">判定 0 / 0</span>
         <button class="btn" id="reset-progress">重置进度</button>
       </div>
@@ -123,6 +129,36 @@ app.innerHTML = `
 const sidebarEl = document.getElementById("sidebar");
 const scrimEl = document.getElementById("scrim");
 const menuBtn = document.getElementById("menu-btn");
+
+/* ---------------- 主题：默认浅色，可切深色 ---------------- */
+const THEME_KEY = "pcb-lab-theme";
+const SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/>';
+const MOON = '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/>';
+
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  try {
+    localStorage.setItem(THEME_KEY, t);
+  } catch (e) {}
+  const btn = document.getElementById("theme-btn");
+  if (btn) {
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">${
+      t === "light" ? MOON : SUN
+    }</svg>`;
+    btn.setAttribute("aria-label", t === "light" ? "切换到深色" : "切换到浅色");
+  }
+  document.dispatchEvent(new CustomEvent("pcb-theme", { detail: t }));
+}
+
+let theme = "light";
+try {
+  theme = localStorage.getItem(THEME_KEY) || "light";
+} catch (e) {}
+applyTheme(theme);
+document.getElementById("theme-btn").addEventListener("click", () => {
+  theme = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+  applyTheme(theme);
+});
 
 function closeMenu() {
   sidebarEl.classList.remove("open");
@@ -266,55 +302,64 @@ function mountHome(root, ctx) {
 
   root.innerHTML = `
     <section class="hero">
-      <div class="kicker">PCB QUALITY LAB · 零基础 → 面试可用</div>
       <h2>把一块 PCB 拆开看，<br/>再把它的品质讲清楚</h2>
-      <p>这是给「准备品质岗、但完全没接触过 PCB」的人做的模拟器。不用背术语，先看、再动手判、最后用工具算一遍——面试官问到的，基本都在里面。</p>
+      <p>给「准备品质岗、但没接触过 PCB」的人做的模拟器。不用背术语，先看、再动手判、最后用工具算一遍——面试官问到的，基本都在里面。</p>
       <div class="actions">
         <button class="btn primary" data-go="structure">先拆一块 4 层板 ${icon("arrow", 15)}</button>
         <button class="btn" data-go="defects">我直接做判定</button>
       </div>
     </section>
 
-    <div class="card" style="margin-top:14px">
+    <section class="blurb">
       <h3>先花 60 秒：PCB 到底是什么？</h3>
-      <div class="sub" style="line-height:1.9">
+      <p>
         PCB（印制电路板）就是所有电子设备里那块绿色、蓝色或黑色的板子。它本身不「干活」，
-        但把芯片、电阻、电容用铜线连起来，让电流按设计好的路线走。<br/>
-        铜线其实在板子<b style="color:var(--text)">里面</b>，外面盖一层绿油保护，只留下焊盘给元件焊接——
-        所以你在成品板上看到的「线路」，往往是透过绿油隐约露出来的。<br/>
-        <b style="color:var(--text)">单面板</b>只有一层铜；<b style="color:var(--text)">4 层板</b>就是 4 层铜夹着绝缘层压在一起，
-        靠「孔」把不同层连起来。品质岗要做的，就是判断这些层、这些孔、这些线路有没有做对。
+        但把芯片、电阻、电容用铜线连起来，让电流按设计好的路线走。
+      </p>
+      <p>
+        铜线其实在板子<b>里面</b>，外面盖一层绿油保护，只留下焊盘给元件焊接——
+        所以你在成品板上看到的「线路」，往往是透过绿油隐约露出来的。
+      </p>
+      <p>
+        <b>单面板</b>只有一层铜；<b>4 层板</b>就是 4 层铜夹着绝缘层压在一起，靠「孔」把不同层连起来。
+        品质岗要做的，就是判断这些层、这些孔、这些线路有没有做对。
+      </p>
+    </section>
+
+    <div class="stat-strip">
+      <div><b>${acc}<small>%</small></b><span>判定正确率</span></div>
+      <div><b>${q.total}<small>题</small></b><span>已练题数</span></div>
+      <div><b>${seen}<small>/ ${DEFECTS.length}</small></b><span>认识缺陷</span></div>
+      <div><b>${q.bestStreak}<small>连</small></b><span>最长连对</span></div>
+    </div>
+
+    <section class="entries">
+      <button class="entry-main" data-go="${modules[0].id}">
+        <span class="entry-eyebrow">从这里开始</span>
+        <span class="entry-title">${modules[0].title}</span>
+        <span class="entry-desc">${modules[0].desc}</span>
+        <span class="entry-go">${modules[0].go} ${icon("arrow", 14)}</span>
+      </button>
+      <div class="entry-rows">
+        ${modules
+          .slice(1)
+          .map(
+            (m) => `
+          <button class="entry-row" data-go="${m.id}">
+            <span class="entry-title">${m.title}</span>
+            <span class="entry-desc">${m.desc}</span>
+            <span class="entry-go">${icon("arrow", 14)}</span>
+          </button>`
+          )
+          .join("")}
       </div>
-    </div>
+    </section>
 
-    <div class="stats-row">
-      <div class="stat"><div class="k">判定正确率</div><div class="v">${acc}<small>%</small></div></div>
-      <div class="stat"><div class="k">已练题数</div><div class="v">${q.total}<small>题</small></div></div>
-      <div class="stat"><div class="k">认识缺陷</div><div class="v">${seen}<small>/ ${DEFECTS.length}</small></div></div>
-      <div class="stat"><div class="k">最长连对</div><div class="v">${q.bestStreak}<small>连</small></div></div>
-    </div>
-
-    <div class="mod-grid">
-      ${modules
-        .map(
-          (m) => `
-        <button class="mod" data-go="${m.id}">
-          <div class="ico"><svg viewBox="0 0 24 24">${ICONS[m.icon]}</svg></div>
-          ${m.badge ? `<span class="badge">${m.badge}</span>` : ""}
-          <h3>${m.title}</h3>
-          <div class="en">${m.en}</div>
-          <p>${m.desc}</p>
-          <div class="go">${m.go} ${icon("arrow", 13)}</div>
-        </button>`
-        )
-        .join("")}
-    </div>
-
-    <div class="card" style="margin-top:16px">
+    <section class="qa">
       <h3>面试可以这么说</h3>
-      <div class="sub">背下来就能用的六句话，点开看完整回答。</div>
-      <div id="lines" style="margin-top:12px"></div>
-    </div>
+      <p class="qa-sub">背下来就能用的六句话，点开看完整回答。</p>
+      <div id="lines"></div>
+    </section>
   `;
 
   root.querySelectorAll("[data-go]").forEach((b) => {

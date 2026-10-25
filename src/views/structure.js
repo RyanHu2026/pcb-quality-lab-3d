@@ -342,6 +342,8 @@ export function mountStructure(root, ctx) {
         onHover: () => {},
       });
       viewer.setBoard(board);
+      const onTheme = (e) => viewer && viewer.setTheme(e.detail);
+      document.addEventListener("pcb-theme", onTheme);
       if (startExplode > 0) {
         viewer.setExplode(startExplode);
         viewer.explode = startExplode;

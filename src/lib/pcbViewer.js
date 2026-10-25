@@ -1,4 +1,4 @@
-import * as THREE from "three";
+﻿import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
@@ -102,6 +102,8 @@ export class PCBViewer {
     ground.position.y = -2.2;
     ground.receiveShadow = true;
     this.scene.add(ground);
+    this.ground = ground;
+    this.setTheme(document.documentElement.dataset.theme || "light");
 
     this.root = new THREE.Group();
     this.scene.add(this.root);
@@ -156,6 +158,16 @@ export class PCBViewer {
       this.select(layer);
       this.onPick && this.onPick(layer);
     });
+  }
+
+  setTheme(t) {
+    const light = t === "light";
+    if (this.ground) {
+      this.ground.material.color.setHex(light ? 0xf2f2f5 : 0x0a0e13);
+      this.ground.material.roughness = light ? 0.96 : 0.9;
+    }
+    if (this.scene) this.scene.environmentIntensity = light ? 0.55 : 0.85;
+    if (this.renderer) this.renderer.toneMappingExposure = light ? 1.05 : 1.0;
   }
 
   setBoard(board) {
@@ -720,6 +732,7 @@ export class PCBViewer {
     }
   }
 }
+
 
 
 

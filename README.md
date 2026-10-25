@@ -1,10 +1,10 @@
-# PCB 品质实验室 · PCB Quality Lab
+﻿# PCB 品质实验室 · PCB Quality Lab
 
 > 给「PCB 品质岗」新人准备的可交互学习模拟器：**拆开板子看结构、盯着缺陷练判定、跑一遍 40 站产线、用 AQL / 8D / SPC 做工具**。
 >
 > 纯前端、离线可用，双击 `index.html` 就能打开，不需要装任何东西。
 
-**在线试用**：开启 GitHub Pages 后访问 <https://ryanhu2026.github.io/pcb-quality-lab-3d/>（仓库 Settings → Pages → Branch 选 `main` / root）
+**在线试用**：<https://ryanhu2026.github.io/pcb-quality-lab-3d/>（默认浅色主题，右上角可切深色）
 
 ---
 
@@ -107,6 +107,11 @@ scripts/
 preview/               截图
 ```
 
+## 设计规范
+
+界面遵循 [docs/design-craft.md](docs/design-craft.md)：单一强调色、无渐变/发光、系统字体、4 倍间距。
+后续改动（包括 AI）按 [AGENTS.md](AGENTS.md) 的硬约束执行。
+
 ## 技术栈
 
 - **three.js r186**：叠层 / 产线两套 3D 场景，OrbitControls + CSS2DRenderer
@@ -126,3 +131,4 @@ preview/               截图
 [MIT](LICENSE) © 2026 RyanHu2026
 
 可以自由使用、修改、商用，保留版权声明即可。
+
