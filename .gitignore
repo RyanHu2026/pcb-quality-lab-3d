@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.chrome/
+.chrome2/
+.chrome*/
+*.log
+.DS_Store
+Thumbs.db
+
+# 第三方参考素材（仅本地建模参考，不随仓库分发）
+PCB_设备图谱_24类总览.png
+PCB_关键设备近景_12类.png
+刚性多层PCB制造流程_40站点.png
+刚性多层PCB制造流程_40站点.svg
+AI_Agent_PCB设备建模与动态仿真说明.md
